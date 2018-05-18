@@ -38,7 +38,6 @@ def read_data():
 
     data.info()
 
-    left = data - nan
 
     from sklearn.preprocessing import StandardScaler
 
