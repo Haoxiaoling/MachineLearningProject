@@ -6,50 +6,100 @@ import numpy as np
 
 def read_data():
     data = pd.read_csv('DataTraining.csv', delim_whitespace = False)
-    # data.info()
-    # null_columns=data.columns[data.isnull().any()]
-    # data = data[data.notnull()]
-    # nan = data.dropna()
-    # nan.info()
-    # # data = data.diff()
-    # # print(data.isnull())
-    #
-    # data.info()
-    # print(null_columns)
-    # data_viz(data)
-    profit = data['profit'].values
-    responded = 1 * (data['responded'].values == 'yes')
-    #print(sum(responded))
-    data = data.drop(['id', 'profit', 'responded'], axis = 1)
+
+
+    # miss = data.dropna(axis = 1)
+    # miss.info()
+
+    #reindex data TODO how to find these index consisting NAN
+    custAge = data['custAge']
+    schooling = data['schooling']
+    day_of_week = data['day_of_week']
+    full_data = data.drop(['custAge', 'schooling', 'day_of_week'], axis = 1)
+
+    data = pd.concat([custAge, schooling, day_of_week, full_data], axis=1)
 
     data.info()
-    # nan = data.dropna(thresh = 18)
-    # nan.info()
-    # nan = data.dropna(thresh = 19)
-    # nan.info()
-    # nan = data.dropna(thresh = 20)
-    # nan.info()
-    # nan = data.dropna(thresh = 21)
-    # nan.info()
-    nan = data.dropna()
-    nan.info()
+    print(data.isnull().any(axis = 0) )
+    full = data.dropna(subset = data.columns.values[:-3])
+    full.info()
     # data = data.diff()
     # print(data.isnull())
 
-    data.info()
 
 
+    ###nan is the rows which miss some data and nan already remove the rows which miss two or two more items.
+    idx1 = data.index[:]
+    idx2 = full.index[:]
+    nan = data.loc[idx1.difference(idx2)]
+    nan = nan.dropna(thresh = 20, subset = data.columns.values[:-3])
+    nan.info()
+
+
+
+    #recover the missing data from full to repair nan
+
+
+    # ########### Output
+    profit = full['profit'].values
+    responded = 1 * (full['responded'].values == 'yes')
+    #print(sum(responded))
+    full = full.drop(['id', 'profit', 'responded'], axis = 1)
+
+    profit_nan = nan['profit'].values
+    responded_nan = 1 * (nan['responded'].values == 'yes')
+    #print(sum(responded))
+    nan = nan.drop(['id', 'profit', 'responded'], axis = 1)
+
+    nan.info()
+
+    ##retrieve data
+    # y_predict, neighbor = data_retrieve(full)
+
+    # print('Logistic Regression: ', sum(abs(y_test == y_predict))/y_predict.shape[0])
+
+
+    #dummy and standardarization
+    normalized_data, scaler = dummy_standardarize(full, [14, 15, 16, 17])
+
+
+
+
+    #print(normalized_data.shape)
+    return normalized_data, responded, profit, scaler
+
+def missing_columns(data, columns):
+    non_missing = data.dropna(subset = [columns])
+    idx1 = data.index[:]
+    idx2 = non_missing.index[:]
+    missing = data.loc[idx1.difference(idx2)]
+
+
+def dummy_standardarize(data, index):
     from sklearn.preprocessing import StandardScaler
 
     #print(data.values.shape)
     #print(list(np.delete(data.columns,[14, 15, 16, 17] )))
-    dummied_data = pd.get_dummies(data, columns=list(np.delete(data.columns,[14, 15, 16, 17] )) )
+    dummied_data = pd.get_dummies(data, columns=list(np.delete(data.columns,index )) )
     scaler = StandardScaler()
     scaler.fit(dummied_data[list(dummied_data.columns.values)[:4]])
     normalized_data = np.c_[scaler.transform(dummied_data[list(dummied_data.columns.values)[:4]]), dummied_data.drop(list(dummied_data.columns.values)[:4], axis = 1).values ]
-    #print(normalized_data.shape)
-    return normalized_data, responded, profit
 
+    return normalized_data, scaler
+
+
+def data_retrieve(x_train, y_train, x):
+    from sklearn.neighbors import KNeighborsClassifier
+
+    neigh = KNeighborsClassifier(n_neighbors=1)
+
+    x_train = dummy_standardarize(x_train)
+    x = dummy_standardarize(x)
+    neigh.fit(x_train, y_train)
+
+    y = neigh.predict(x)
+
+    return y, neigh
 
 def data_viz(data):
     import matplotlib.pyplot as plt
@@ -68,7 +118,7 @@ def data_viz(data):
 
 if __name__ == '__main__':
     import random
-    [data_x, y, r] = read_data()
+    [data_x, y, r, scaler] = read_data()
     data_size = data_x.shape[0]
     positive_size = int(sum(y))
     negative_size = data_size - positive_size
