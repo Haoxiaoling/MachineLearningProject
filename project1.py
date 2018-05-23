@@ -20,7 +20,6 @@ def read_data():
     data = pd.concat([custAge, schooling, day_of_week, full_data], axis=1)
 
     data.info()
-    print(data.isnull().any(axis = 0) )
     full = data.dropna(subset = data.columns.values[:-3])
     full.info()
     # data = data.diff()
@@ -41,30 +40,65 @@ def read_data():
 
 
     # ########### Output
+    # profit = full['profit'].values
+    # responded = 1 * (full['responded'].values == 'yes')
+    # #print(sum(responded))
+    # full = full.drop(['id', 'profit', 'responded'], axis = 1)
+    #
+    # profit_nan = nan['profit'].values
+    # responded_nan = 1 * (nan['responded'].values == 'yes')
+    # #print(sum(responded))
+    # nan = nan.drop(['id', 'profit', 'responded'], axis = 1)
+    #
+    # nan.info()
+
+    ##retrieve data
+    # from sklearn.neighbors import KNeighborsClassifier
+    # neigh = KNeighborsClassifier(n_neighbors=1)
+    # age = full['day_of_week'].values
+    # para = full.drop(['day_of_week'], axis = 1)
+    # from sklearn.preprocessing import StandardScaler
+    #
+    # #print(data.values.shape)
+    # #print(list(np.delete(data.columns,[14, 15, 16, 17] )))
+    # dummied_data = pd.get_dummies(para, columns=list(np.delete(para.columns,[13, 14, 15, 16] )) )
+    # scaler = StandardScaler()
+    # scaler.fit(dummied_data[list(dummied_data.columns.values)[:4]])
+    # normalized_data = np.c_[scaler.transform(dummied_data[list(dummied_data.columns.values)[:4]]), dummied_data.drop(list(dummied_data.columns.values)[:4], axis = 1).values ]
+    #
+    # # age = pd.get_dummies(age)
+    #
+    # from sklearn.model_selection import train_test_split
+    #
+    # x_train, x_test, y_train, y_test = train_test_split(normalized_data, age, test_size = 0.2)
+    #
+    # neigh.fit(x_train, y_train)
+    #
+    # y_predict = neigh.predict(x_test)
+    # # print(y_predict, y_test)
+    # print('Logistic Regression: ', sum(abs(y_test == y_predict))/y_predict.shape[0])
+    # y_predict, neighbor = data_retrieve(full)
+    for column in ['schooling', 'day_of_week']:
+        missing = missing_columns(nan, column)
+        # print('Logistic Regression: ', sum(abs(y_test == y_predict))/y_predict.shape[0])
+        missing.info()
+        missing_column = data_retrieve(full.drop([column, 'id', 'profit', 'responded'],axis = 1), full[column].values, missing.drop([column, 'id', 'profit', 'responded'], axis = 1))
+        print(missing_column.shape)
+        missing[column] = missing_column
+        missing.info()
+        full = pd.concat([full, missing], axis = 0)
+
+
     profit = full['profit'].values
     responded = 1 * (full['responded'].values == 'yes')
     #print(sum(responded))
     full = full.drop(['id', 'profit', 'responded'], axis = 1)
-
-    profit_nan = nan['profit'].values
-    responded_nan = 1 * (nan['responded'].values == 'yes')
-    #print(sum(responded))
-    nan = nan.drop(['id', 'profit', 'responded'], axis = 1)
-
-    nan.info()
-
-    ##retrieve data
-    # y_predict, neighbor = data_retrieve(full)
-
-    # print('Logistic Regression: ', sum(abs(y_test == y_predict))/y_predict.shape[0])
-
-
     #dummy and standardarization
-    normalized_data, scaler = dummy_standardarize(full, [14, 15, 16, 17])
+    normalized_data, scaler = dummy_standardarize(full, [0, 14, 15, 16, 17])
 
 
 
-
+    print(normalized_data.shape)
     #print(normalized_data.shape)
     return normalized_data, responded, profit, scaler
 
@@ -73,6 +107,7 @@ def missing_columns(data, columns):
     idx1 = data.index[:]
     idx2 = non_missing.index[:]
     missing = data.loc[idx1.difference(idx2)]
+    return missing
 
 
 def dummy_standardarize(data, index):
@@ -82,24 +117,33 @@ def dummy_standardarize(data, index):
     #print(list(np.delete(data.columns,[14, 15, 16, 17] )))
     dummied_data = pd.get_dummies(data, columns=list(np.delete(data.columns,index )) )
     scaler = StandardScaler()
-    scaler.fit(dummied_data[list(dummied_data.columns.values)[:4]])
-    normalized_data = np.c_[scaler.transform(dummied_data[list(dummied_data.columns.values)[:4]]), dummied_data.drop(list(dummied_data.columns.values)[:4], axis = 1).values ]
-
+    scaler.fit(dummied_data[list(dummied_data.columns.values)[:5]])
+    normalized_data = np.c_[scaler.transform(dummied_data[list(dummied_data.columns.values)[:5]]), dummied_data.drop(list(dummied_data.columns.values)[:5], axis = 1).values ]
     return normalized_data, scaler
 
 
 def data_retrieve(x_train, y_train, x):
     from sklearn.neighbors import KNeighborsClassifier
 
-    neigh = KNeighborsClassifier(n_neighbors=1)
-
-    x_train = dummy_standardarize(x_train)
-    x = dummy_standardarize(x)
+    neigh = KNeighborsClassifier(n_neighbors=2)
+    size = x_train.shape[0]
+    x, scaler = dummy_standardarize(pd.concat([x_train, x]), [0, 13, 14, 15, 16])
+    x_train = x[:size,:]
+    x = x[size:, :]
     neigh.fit(x_train, y_train)
-
+    print(x_train.shape, x.shape)
     y = neigh.predict(x)
 
-    return y, neigh
+    # from sklearn.model_selection import train_test_split
+    #
+    # x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size = 0.2)
+    #
+    # neigh.fit(x_train, y_train)
+    #
+    # y = neigh.predict(x_test)
+    #
+    # print(sum(abs(y_test == y))/y.shape[0])
+    return y
 
 def data_viz(data):
     import matplotlib.pyplot as plt
