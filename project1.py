@@ -189,131 +189,131 @@ if __name__ == '__main__':
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2)
 
 
-    # #Classifier: LogisticRegression Part
-    # from sklearn.linear_model import LogisticRegression
+    #Classifier: LogisticRegression Part
+    from sklearn.linear_model import LogisticRegression
+
+    classifier = LogisticRegression(class_weight = 'balanced', penalty='l1')
+    classifier.fit(x_train, y_train)
+
+    y_predict = classifier.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print('Logistic Regression: ', sum(abs(y_test - y_predict))/len(y_predict))
+
+    #Classifier: SVM part
+    from sklearn.svm import SVC
+
+    classifier = SVC(class_weight = 'balanced')
+    classifier.fit(x_train, y_train)
+
+    y_predict = classifier.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print('SVM: ',sum(abs(y_test - y_predict))/len(y_predict))
+
+    #Classifier: LDA part
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+
+    classifier = LinearDiscriminantAnalysis(solver='lsqr')
+    classifier.fit(x_train, y_train)
+
+    y_predict = classifier.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print(sum(y_test==1))
+    print(sum(y_test==0))
+    print('LDA: ',sum(abs(y_test - y_predict))/len(y_predict))
+
+    #Classifier: LDA part
+    # from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
     #
-    # classifier = LogisticRegression(class_weight = 'balanced', penalty='l1')
+    # classifier = QuadraticDiscriminantAnalysis()
     # classifier.fit(x_train, y_train)
     #
     # y_predict = classifier.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print('Logistic Regression: ', sum(abs(y_test - y_predict))/len(y_predict))
-    #
-    # #Classifier: SVM part
-    # from sklearn.svm import SVC
-    #
-    # classifier = SVC(class_weight = 'balanced')
-    # classifier.fit(x_train, y_train)
-    #
-    # y_predict = classifier.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print('SVM: ',sum(abs(y_test - y_predict))/len(y_predict))
-    #
-    # #Classifier: LDA part
-    # from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-    #
-    # classifier = LinearDiscriminantAnalysis(solver='lsqr')
-    # classifier.fit(x_train, y_train)
-    #
-    # y_predict = classifier.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print(sum(y_test==1))
-    # print(sum(y_test==0))
-    # print('LDA: ',sum(abs(y_test - y_predict))/len(y_predict))
-    #
-    # #Classifier: LDA part
-    # # from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-    # #
-    # # classifier = QuadraticDiscriminantAnalysis()
-    # # classifier.fit(x_train, y_train)
-    # #
-    # # y_predict = classifier.predict(x_test)
-    # # print(sum(abs(y_test - y_predict))/len(y_predict))
-    # # print(y_test)
-    # # print(y_predict)
-    #
-    # #Classifier: Randomforest
-    # from sklearn.ensemble import RandomForestClassifier
-    #
-    # classifier = RandomForestClassifier()
-    # classifier.fit(x_train, y_train)
-    #
-    # y_predict = classifier.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print('Random Forest: ', sum(abs(y_test - y_predict))/len(y_predict))
-    #
-    # #Classifier: Adaboost
-    # from sklearn.ensemble import AdaBoostClassifier
-    #
-    # classifier = AdaBoostClassifier(n_estimators=40)
-    # classifier.fit(x_train, y_train)
-    #
-    # y_predict = classifier.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print('Adaboost: ', sum(abs(y_test - y_predict))/len(y_predict))
-    #
-    # #Classifier: Naive Bayes
-    # from sklearn.naive_bayes import GaussianNB
-    #
-    # classifier = GaussianNB()
-    # classifier.fit(x_train, y_train)
-    #
-    # y_predict = classifier.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print('Naive Bayes: ', sum(abs(y_test - y_predict))/len(y_predict))
-    #
-    #
-    # #Classifier: Gradient boosting
-    # from sklearn.ensemble import GradientBoostingClassifier
-    #
-    # classifier = GradientBoostingClassifier()
-    # classifier.fit(x_train, y_train)
-    #
-    # y_predict = classifier.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print('Gradient boosting: ', sum(abs(y_test - y_predict))/len(y_predict))
-    #
-    # #Classifier: GP classifier
-    # from sklearn.gaussian_process import GaussianProcessClassifier
-    #
-    # classifier = GaussianProcessClassifier()
-    # classifier.fit(x_train, y_train)
-    #
-    # y_predict = classifier.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print('Gaussian Process: ', sum(abs(y_test - y_predict))/len(y_predict))
-    #
-    # #Classifier: MLP classifier
-    # from sklearn.neural_network import MLPClassifier
-    #
-    # classifier = MLPClassifier(hidden_layer_sizes=(20,), early_stopping=True, alpha=1)
-    # classifier.fit(x_train, y_train)
-    #
-    # y_predict = classifier.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print('MLP: ', sum(abs(y_test - y_predict))/len(y_predict))
-    #
-    #
-    # ###KNN part
-    # from sklearn.neighbors import KNeighborsClassifier
-    #
-    # neigh = KNeighborsClassifier(n_neighbors=2)
-    #
-    # neigh.fit(x_train, y_train)
-    #
-    # y_predict = neigh.predict(x_test)
-    # print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
-    # print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
-    # print('KNN: ', sum(abs(y_test - y_predict))/len(y_predict))
+    # print(sum(abs(y_test - y_predict))/len(y_predict))
+    # print(y_test)
+    # print(y_predict)
+
+    #Classifier: Randomforest
+    from sklearn.ensemble import RandomForestClassifier
+
+    classifier = RandomForestClassifier()
+    classifier.fit(x_train, y_train)
+
+    y_predict = classifier.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print('Random Forest: ', sum(abs(y_test - y_predict))/len(y_predict))
+
+    #Classifier: Adaboost
+    from sklearn.ensemble import AdaBoostClassifier
+
+    classifier = AdaBoostClassifier(n_estimators=40)
+    classifier.fit(x_train, y_train)
+
+    y_predict = classifier.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print('Adaboost: ', sum(abs(y_test - y_predict))/len(y_predict))
+
+    #Classifier: Naive Bayes
+    from sklearn.naive_bayes import GaussianNB
+
+    classifier = GaussianNB()
+    classifier.fit(x_train, y_train)
+
+    y_predict = classifier.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print('Naive Bayes: ', sum(abs(y_test - y_predict))/len(y_predict))
+
+
+    #Classifier: Gradient boosting
+    from sklearn.ensemble import GradientBoostingClassifier
+
+    classifier = GradientBoostingClassifier()
+    classifier.fit(x_train, y_train)
+
+    y_predict = classifier.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print('Gradient boosting: ', sum(abs(y_test - y_predict))/len(y_predict))
+
+    #Classifier: GP classifier
+    from sklearn.gaussian_process import GaussianProcessClassifier
+
+    classifier = GaussianProcessClassifier()
+    classifier.fit(x_train, y_train)
+
+    y_predict = classifier.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print('Gaussian Process: ', sum(abs(y_test - y_predict))/len(y_predict))
+
+    #Classifier: MLP classifier
+    from sklearn.neural_network import MLPClassifier
+
+    classifier = MLPClassifier(hidden_layer_sizes=(20,), early_stopping=True, alpha=1)
+    classifier.fit(x_train, y_train)
+
+    y_predict = classifier.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print('MLP: ', sum(abs(y_test - y_predict))/len(y_predict))
+
+
+    ###KNN part
+    from sklearn.neighbors import KNeighborsClassifier
+
+    neigh = KNeighborsClassifier(n_neighbors=2)
+
+    neigh.fit(x_train, y_train)
+
+    y_predict = neigh.predict(x_test)
+    print(sum(y_predict - y_test == -1)/(sum(y_test ==1 )))
+    print(sum(y_predict - y_test == 1)/(sum(y_test ==0 )))
+    print('KNN: ', sum(abs(y_test - y_predict))/len(y_predict))
 
     print(x.shape)
     ####test data part
